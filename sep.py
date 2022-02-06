@@ -117,6 +117,17 @@ if 'eZone金沢' in Recaled.values:
 	#Recaled['holl'] == 'eZone金沢'
 	ezkanadf = Recaled[Recaled['holl'] == 'eZone金沢']
 	ezkanadf = ezkanadf.iloc[:,:8]
+	#dailist
+	posdaiez = ezkanadf.loc[:,'dai']
+	ezkanadf.insert(0,'posdai',posdaiez)
+	dailist = pd.read_csv('./tmp/ezkanadailist.csv',names=('posdai','kuu'))
+	ezkanadf = pd.merge(ezkanadf, dailist, how='outer')
+	ezkanadf = ezkanadf.reindex(columns=['posdai','Rotation','BB','RB','difference','max','machine','date'])
+	#fillna(method='ffill') to 'date'
+	ezkanadf['date'] = ezkanadf['date'].fillna(method='ffill')
+	ezkanadf= ezkanadf.fillna(0)
+	ezkanadf = ezkanadf.astype({'posdai':'int64','Rotation':'int64','BB':'int64','RB':'int64','difference':'int64','max':'int64','machine':'str','date':'int64'})
+	ezkanadf = ezkanadf.sort_values('posdai')
 	#auto seriesmachine bank
 	#pd.Series.unique()
 	ezkanaser = ezkanadf.loc[:,'machine'].unique()
@@ -148,7 +159,7 @@ if 'オークラ諸江' in Recaled.values:
 	morodf = Recaled[Recaled['holl'] == 'オークラ諸江']
 	morodf = morodf.iloc[:,:8]
 	#dailist
-	posdai = morodf.loc[:,'dai'].unique()
+	posdai = morodf.loc[:,'dai']
 	morodf.insert(0,'posdai',posdai)
 	dailist = pd.read_csv('./tmp/moroedailist.csv',names=('posdai','kuu'))
 	morodf = pd.merge(morodf, dailist, how='outer')
