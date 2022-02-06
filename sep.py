@@ -21,6 +21,9 @@ rawdata = pd.read_csv('./Raw/daidata.csv', encoding = 'utf-16')
 #all chenge columnsname
 rawdata = rawdata.set_axis(['Rotation','BB','RB','co1','co2','han1','han2','difference','han3','max','dai','machine','holl','date','kari1','kari2','url','text'], axis='columns')
 
+#drop_duplicates(['dai','holl']) bool
+rawdata = rawdata.drop_duplicates(['dai','holl'])
+
 #Preprocessing
 #Remove the comma (Because NaN may be created after removing it)
 ##important ! 1,234 are treated as strings and replaced by the replace(',','')
@@ -165,7 +168,6 @@ if 'オークラ諸江' in Recaled.values:
 	morodf = pd.merge(morodf, dailist, how='outer')
 	morodf = morodf.reindex(columns=['posdai','Rotation','BB','RB','difference','max','machine','date'])
 	#fillna(method='ffill') to 'date'
-	print(morodf['date'].dtype)
 	morodf['date'] = morodf['date'].fillna(method='ffill')
 	morodf = morodf.fillna(0)
 	morodf = morodf.astype({'posdai':'int64','Rotation':'int64','BB':'int64','RB':'int64','difference':'int64','max':'int64','machine':'str','date':'int64'})
