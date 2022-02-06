@@ -39,6 +39,29 @@ print(rawdata.isnull().any())
 #Type conversion
 rawdata = rawdata.astype({'Rotation':'int64','BB':'int64','RB':'int64','co1':'int64','co2':'int64','han2':'int64','max':'int64','machine':'str','kari1':'int64','kari2':'int64'})
 
+#y/n date today?
+#y/Ndef
+def yes_no_input():
+	while True:
+		choice = input("Please respond with 'today? yes' or 'no' [y/N]: ").lower()
+		if choice in ['y', 'ye', 'yes']:
+			return True
+		elif choice in ['n', 'no']:
+			return False
+'''
+datetime to date
+'''
+if __name__ == '__main__':
+	if yes_no_input():
+		d = datetime.datetime.now()
+	else:
+		d = datetime.datetime.now() - datetime.timedelta(days=1)
+#8 digits to int
+intdt= int(d.strftime('%Y%m%d'))
+print(intdt)
+#'date'.values replace intdt all
+rawdata['date'] = intdt
+
 #Type confirmation
 rawdata.dtypes
 
@@ -46,9 +69,9 @@ rawdata.dtypes
 
 #if Sentence "hollname" in df.values
 if 'ゼロタイガー' in rawdata.values:
-	zerodf = rawdata.reindex(columns=['dai','Rotation','BB','RB','difference','max','machine','holl','date'])
+	zerodf = rawdata.reindex(columns=['dai','Rotation','BB','RB','difference','max','machine','date','holl'])
 	zerodf = zerodf[zerodf['holl'] == 'ゼロタイガー']
-	zerodf = zerodf.iloc[:,:7]
+	zerodf = zerodf.iloc[:,:8]
 	#'difference'chenge .astype to int64 
 	zerodf['difference'] = zerodf['difference'].str.replace(',','')
 	zerodf = zerodf.astype({'difference':'int64'})
@@ -78,11 +101,11 @@ else:
 
 #case ezkana or moro to Calculation
 if 'eZone金沢' in rawdata.values or 'オークラ諸江' in rawdata.values:
-	Recal = rawdata.reindex(columns=['han2','kari1','kari2','dai','Rotation','BB','RB','difference','max','machine','holl','date'])
+	Recal = rawdata.reindex(columns=['han2','kari1','kari2','dai','Rotation','BB','RB','difference','max','machine','date','holl'])
 	#diff(('kari1'/1000)*6)*('kari2'-'han2')
 	#Calculation
 	Recal['difference'] = ((Recal['kari1'] / 1000) * 6)  * (Recal['kari2'] - Recal['han2'])
-	Recaled = Recal.reindex(columns=['dai','Rotation','BB','RB','difference','max','machine','holl','date'])
+	Recaled = Recal.reindex(columns=['dai','Rotation','BB','RB','difference','max','machine','date','holl',])
 	#['difference'] to int64
 	Recaled = Recaled.astype({'difference':'int64'})
 else:
@@ -93,7 +116,7 @@ if 'eZone金沢' in Recaled.values:
 	#bloom to df
 	#Recaled['holl'] == 'eZone金沢'
 	ezkanadf = Recaled[Recaled['holl'] == 'eZone金沢']
-	ezkanadf = ezkanadf.iloc[:,:7]
+	ezkanadf = ezkanadf.iloc[:,:8]
 	#auto seriesmachine bank
 	#pd.Series.unique()
 	ezkanaser = ezkanadf.loc[:,'machine'].unique()
@@ -123,15 +146,18 @@ if 'オークラ諸江' in Recaled.values:
 	#bloom to df
 	#Recaled['holl'] == 'オークラ諸江'
 	morodf = Recaled[Recaled['holl'] == 'オークラ諸江']
-	morodf = morodf.iloc[:,:7]
+	morodf = morodf.iloc[:,:8]
 	#dailist
 	posdai = morodf.loc[:,'dai'].unique()
 	morodf.insert(0,'posdai',posdai)
 	dailist = pd.read_csv('./tmp/moroedailist.csv',names=('posdai','kuu'))
 	morodf = pd.merge(morodf, dailist, how='outer')
-	morodf = morodf.reindex(columns=['posdai','Rotation','BB','RB','difference','max','machine'])
+	morodf = morodf.reindex(columns=['posdai','Rotation','BB','RB','difference','max','machine','date'])
+	#fillna(method='ffill') to 'date'
+	print(morodf['date'].dtype)
+	morodf['date'] = morodf['date'].fillna(method='ffill')
 	morodf = morodf.fillna(0)
-	morodf = morodf.astype({'posdai':'int64','Rotation':'int64','BB':'int64','RB':'int64','difference':'int64','max':'int64','machine':'str'})
+	morodf = morodf.astype({'posdai':'int64','Rotation':'int64','BB':'int64','RB':'int64','difference':'int64','max':'int64','machine':'str','date':'int64'})
 	morodf = morodf.sort_values('posdai')
 	#auto seriesmachine bank
 	#pd.Series.unique()
