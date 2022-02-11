@@ -45,7 +45,7 @@ def yes_no_input():
 '''
 datetime to date
 '''
-print(f' This is {intdt} data? '}
+print(f' This is {intdt} data? ')
 if __name__ == '__main__':
 	if yes_no_input():
 		d = datetime.datetime.now()
